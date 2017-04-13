@@ -5,15 +5,11 @@ html, body {
 }
 
 #map {
-  float: left;
-  clear: right;
   height: 35%;
   width: 70%;
 }
 
 #pano {
-  float: left;
-  clear: right;
   height: 65%;
   width: 70%;
 }
