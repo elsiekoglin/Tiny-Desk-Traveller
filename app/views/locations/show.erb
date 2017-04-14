@@ -1,83 +1,87 @@
 <div id="pano"></div>
 <input id="pac-input" class="controls" type="text" placeholder="Search Box">
-    <div id="map"></div>
-    <script>
-      function initAutocomplete() {
-        var map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: -33.8688, lng: 151.2195},
-          zoom: 13,
-          mapTypeId: 'roadmap'
+  <sidebar id="sidebar"><%= erb :'locations/_weather' %></sidebar>
+<div id="map"></div>
+  <script>
+    function initAutocomplete() {
+      var map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: -33.8688, lng: 151.2195},
+        zoom: 14,
+        mapTypeId: 'roadmap'
+      });
+      var panorama = new google.maps.StreetViewPanorama(
+        document.getElementById('pano'), {
+          position: {lat: -33.8688, lng: 151.2195},
+          pov: {
+            heading: 34,
+            pitch: 10
+              }
+      });
+
+      var input = document.getElementById('pac-input');
+      var searchBox = new google.maps.places.SearchBox(input);
+      map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+      map.addListener('bounds_changed', function() {
+        searchBox.setBounds(map.getBounds());
+      });
+
+      var markers = [];
+      searchBox.addListener('places_changed', function() {
+        var places = searchBox.getPlaces();
+
+        if (places.length == 0) {
+          return;
+        }
+
+        markers.forEach(function(marker) {
+          marker.setMap(null);
         });
-        var panorama = new google.maps.StreetViewPanorama(
-          document.getElementById('pano'), {
-            position: {lat: -33.8688, lng: 151.2195},
-            pov: {
-              heading: 34,
-              pitch: 10
-                }
-        });
+        markers = [];
 
-        var input = document.getElementById('pac-input');
-        var searchBox = new google.maps.places.SearchBox(input);
-        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-
-        map.addListener('bounds_changed', function() {
-          searchBox.setBounds(map.getBounds());
-        });
-
-        var markers = [];
-        searchBox.addListener('places_changed', function() {
-          var places = searchBox.getPlaces();
-
-          if (places.length == 0) {
+        var bounds = new google.maps.LatLngBounds();
+        places.forEach(function(place) {
+          if (!place.geometry) {
+            console.log("Returned place contains no geometry");
             return;
           }
+          var icon = {
+            url: place.icon,
+            size: new google.maps.Size(71, 71),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(17, 34),
+            scaledSize: new google.maps.Size(25, 25)
+          };
 
-          markers.forEach(function(marker) {
-            marker.setMap(null);
-          });
-          markers = [];
+          markers.push(new google.maps.Marker({
+            map: map,
+            icon: icon,
+            title: place.name,
+            position: place.geometry.location
+          }));
+          console.log(place.geometry.location)
 
-          var bounds = new google.maps.LatLngBounds();
-          places.forEach(function(place) {
-            if (!place.geometry) {
-              console.log("Returned place contains no geometry");
-              return;
-            }
-            var icon = {
-              url: place.icon,
-              size: new google.maps.Size(71, 71),
-              origin: new google.maps.Point(0, 0),
-              anchor: new google.maps.Point(17, 34),
-              scaledSize: new google.maps.Size(25, 25)
-            };
-
-            markers.push(new google.maps.Marker({
-              map: map,
-              icon: icon,
-              title: place.name,
-              position: place.geometry.location
-            }));
-
-            if (place.geometry.viewport) {
-              bounds.union(place.geometry.viewport);
-            } else {
-              bounds.extend(place.geometry.location);
-            }
-          });
-
-          map.fitBounds(bounds);
-            var panorama = new google.maps.StreetViewPanorama(
-              document.getElementById('pano'), {
-                position: bounds.getCenter(),
-                pov: {
-                  heading: 34,
-                  pitch: 10
-                    }
-            });
-          map.setStreetView(panorama);
+          if (place.geometry.viewport) {
+            bounds.union(place.geometry.viewport);
+          } else {
+            bounds.extend(place.geometry.location);
+          }
         });
-      }
-    </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=<%= google_key %>&libraries=places&callback=initAutocomplete"
-         async defer></script>
+
+        map.fitBounds(bounds);
+          var panorama = new google.maps.StreetViewPanorama(
+            document.getElementById('pano'), {
+              position: bounds.getCenter(),
+              pov: {
+                heading: 34,
+                pitch: 10
+                  }
+          });
+        map.setStreetView(panorama);
+      });
+    }
+  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=<%= google_key %>&libraries=places&callback=initAutocomplete"
+       async defer></script>
+
+
