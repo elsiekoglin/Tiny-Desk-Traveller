@@ -18,3 +18,5 @@ get '/locations/:id' do
   erb :'locations/show', locals: {google_key: google, link: uri }
 end
 
+# <%= link %>
+
