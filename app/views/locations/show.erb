@@ -9,14 +9,7 @@
           zoom: 13,
           mapTypeId: 'roadmap'
         });
-        var panorama = new google.maps.StreetViewPanorama(
-          document.getElementById('pano'), {
-            position: location,
-            pov: {
-              heading: 34,
-              pitch: 10
-                }
-        });
+
 
          // Create the search box and link it to the UI element.
         var input = document.getElementById('pac-input');
@@ -27,6 +20,7 @@
           searchBox.setBounds(map.getBounds());
         });
         var markers = [];
+
         searchBox.addListener('places_changed', function() {
         var places = searchBox.getPlaces();
           if (places.length == 0) {
@@ -66,7 +60,18 @@
               bounds.extend(place.geometry.location);
             }
           });
+
+
+
           map.fitBounds(bounds);
+            var panorama = new google.maps.StreetViewPanorama(
+                      document.getElementById('pano'), {
+                        position: bounds.getCenter(),
+                        pov: {
+                          heading: 34,
+                          pitch: 10
+                            }
+                    });
           map.setStreetView(panorama);
         });
       }
