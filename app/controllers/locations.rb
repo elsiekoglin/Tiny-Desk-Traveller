@@ -12,7 +12,6 @@ get '/locations/cities' do
   erb :'locations/show', locals: {google_key: google }
 end
 
-
 get '/locations/:id' do
   google = ENV['GOOGLE_API_KEY']
   @location = Location.find_by(id: params[:id])
