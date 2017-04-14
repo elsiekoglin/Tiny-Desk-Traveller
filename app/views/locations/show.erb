@@ -1,17 +1,22 @@
 <div id="pano"></div>
 <input id="pac-input" class="controls" type="text" placeholder="Search Box">
-<div id="map"></div>
+    <div id="map"></div>
     <script>
       function initAutocomplete() {
-        var location = {lat: -33.8688, lng: 151.2195};
         var map = new google.maps.Map(document.getElementById('map'), {
           center: {lat: -33.8688, lng: 151.2195},
           zoom: 13,
           mapTypeId: 'roadmap'
         });
+        var panorama = new google.maps.StreetViewPanorama(
+          document.getElementById('pano'), {
+            position: {lat: -33.8688, lng: 151.2195},
+            pov: {
+              heading: 34,
+              pitch: 10
+                }
+        });
 
-
-         // Create the search box and link it to the UI element.
         var input = document.getElementById('pac-input');
         var searchBox = new google.maps.places.SearchBox(input);
         map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
@@ -19,19 +24,21 @@
         map.addListener('bounds_changed', function() {
           searchBox.setBounds(map.getBounds());
         });
-        var markers = [];
 
+        var markers = [];
         searchBox.addListener('places_changed', function() {
-        var places = searchBox.getPlaces();
+          var places = searchBox.getPlaces();
+
           if (places.length == 0) {
             return;
           }
+
           markers.forEach(function(marker) {
             marker.setMap(null);
           });
           markers = [];
 
-        var bounds = new google.maps.LatLngBounds();
+          var bounds = new google.maps.LatLngBounds();
           places.forEach(function(place) {
             if (!place.geometry) {
               console.log("Returned place contains no geometry");
@@ -45,7 +52,6 @@
               scaledSize: new google.maps.Size(25, 25)
             };
 
-            // Create a marker for each place.
             markers.push(new google.maps.Marker({
               map: map,
               icon: icon,
@@ -54,28 +60,24 @@
             }));
 
             if (place.geometry.viewport) {
-              // Only geocodes have viewport.
               bounds.union(place.geometry.viewport);
             } else {
               bounds.extend(place.geometry.location);
             }
           });
 
-
-
           map.fitBounds(bounds);
             var panorama = new google.maps.StreetViewPanorama(
-                      document.getElementById('pano'), {
-                        position: bounds.getCenter(),
-                        pov: {
-                          heading: 34,
-                          pitch: 10
-                            }
-                    });
+              document.getElementById('pano'), {
+                position: bounds.getCenter(),
+                pov: {
+                  heading: 34,
+                  pitch: 10
+                    }
+            });
           map.setStreetView(panorama);
         });
       }
-
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=<%= google_key %>&libraries=places&callback=initAutocomplete"
          async defer></script>
