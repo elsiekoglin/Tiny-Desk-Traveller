@@ -1,22 +1,24 @@
 <div id="pano"></div>
 <input id="pac-input" class="controls" type="text" placeholder="Search Box">
-  <sidebar id="sidebar"><%= erb :'locations/_weather' %></sidebar>
+<sidebar id="sidebar"><%= erb :'locations/_weather' %></sidebar>
 <div id="map"></div>
-  <script>
+    <script>
     function initAutocomplete() {
+      var lat = <%= @lat %>;
+      var lng = <%= @lng %>;
+      var location = {lat: lat, lng: lng};
       var map = new google.maps.Map(document.getElementById('map'), {
-        center: {lat: -33.8688, lng: 151.2195},
-        zoom: 14,
+        center: location,
+        zoom: 14
       });
-      var panorama = new google.maps.StreetViewPanorama(
+      var streetview = new google.maps.StreetViewPanorama(
         document.getElementById('pano'), {
-          position: {lat: -33.8688, lng: 151.2195},
+          position: location,
           pov: {
             heading: 34,
             pitch: 10
-              }
-      });
-
+          }
+        });
       var input = document.getElementById('pac-input');
       var searchBox = new google.maps.places.SearchBox(input);
       map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
@@ -66,21 +68,10 @@
             bounds.extend(place.geometry.location);
           }
         });
-
-        map.fitBounds(bounds);
-          var panorama = new google.maps.StreetViewPanorama(
-            document.getElementById('pano'), {
-              position: bounds.getCenter(),
-              pov: {
-                heading: 34,
-                pitch: 10
-                  }
-          });
-        map.setStreetView(panorama);
-      });
-    }
-  </script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=<%= google_key %>&libraries=places&callback=initAutocomplete"
+      map.fitBounds(bounds);
+      map.setStreetView(streetview);
+    });
+  }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= google_key %>&libraries=places&callback=initAutocomplete"
        async defer></script>
-
-
