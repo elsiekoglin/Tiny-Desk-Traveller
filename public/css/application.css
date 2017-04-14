@@ -5,11 +5,23 @@ html, body {
 }
 
 #map {
+  display: inline-block;
+  margin: 0;
   height: 35%;
   width: 70%;
 }
 
 #pano {
+  display: inline-block;
+  margin: 0;
   height: 65%;
   width: 70%;
+}
+
+#sidebar {
+  float: right;
+  max-height: 300px;
+  display: inline-block;
+  width: 28%;
+  margin-left: 0;
 }
